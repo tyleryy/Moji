@@ -1,0 +1,8 @@
+# Ignore env.local file
+**/.env.*.local
+
+# Ignore node_modules directory
+**/.node_modules/
+
+# Ignore next-env.d.ts file
+**/.next-env.d.ts
