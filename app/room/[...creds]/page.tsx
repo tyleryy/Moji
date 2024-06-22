@@ -12,10 +12,11 @@ import "@livekit/components-styles";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
 
-export default function Page() {
+export default function Page({ params }: { params: { creds: string[] } }) {
   // TODO: get user input for room and name
-  const room = "quickstart-room";
-  const name = "user" + Math.floor(Math.random() * 1000);
+  console.log(params.creds);
+  const room = params.creds[0];
+  const name = params.creds[1];
   const [token, setToken] = useState("");
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function Page() {
       serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
       // Use the default LiveKit theme for nice styles.
       data-lk-theme="default"
-      style={{ height: '100dvh' }}
+      style={{ height: "100dvh" }}
     >
       {/* Your custom component with basic video conferencing functionality. */}
       <MyVideoConference />
@@ -65,10 +66,13 @@ function MyVideoConference() {
       { source: Track.Source.Camera, withPlaceholder: true },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
-    { onlySubscribed: false },
+    { onlySubscribed: false }
   );
   return (
-    <GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+    <GridLayout
+      tracks={tracks}
+      style={{ height: "calc(100vh - var(--lk-control-bar-height))" }}
+    >
       {/* The GridLayout accepts zero or one child. The child is used
       as a template to render all passed in tracks. */}
       <ParticipantTile />

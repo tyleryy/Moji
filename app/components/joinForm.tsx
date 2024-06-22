@@ -21,7 +21,7 @@ export default function JoinForm() {
   const router = useRouter();
   function joinRoom() {
     console.log("Joining room", roomName, userName);
-    router.push(`/room/${roomName}?name=${userName}`);
+    router.push(`/room/${roomName}/${userName}`);
   }
 
   return (
