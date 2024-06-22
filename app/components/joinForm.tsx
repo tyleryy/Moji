@@ -1,25 +1,44 @@
 "use client";
 
 import Image from "next/image";
-import { Input, Stack, Button } from "@chakra-ui/react";
-import { join } from "path";
+import {
+  Input,
+  Stack,
+  Button,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
+} from "@chakra-ui/react";
+
 import { useState } from "react";
 
-export default function JoinForm() {
-  const [roomName, setRoomName] = useState("");
+import { useRouter } from "next/navigation";
 
-  function joinRoom() {}
+export default function JoinForm() {
+  const [roomName, setRoomName] = useState<any>("");
+  const [userName, setUserName] = useState<any>("");
+  const router = useRouter();
+  function joinRoom() {
+    console.log("Joining room", roomName, userName);
+    router.push(`/room/${roomName}/${userName}`);
+  }
 
   return (
-    <Stack spacing={3}>
+    <FormControl>
+      <FormLabel>Room Name</FormLabel>
       <Input
         placeholder="Enter room name"
-        bg="transparent"
-        color="white"
         value={roomName}
+        onChange={(e) => setRoomName(e.target.value)}
       />
-      <Input placeholder="Enter username" bg="transparent" color="white" />
+      <FormLabel>User Name</FormLabel>
+      <Input
+        placeholder="Enter usxwername"
+        value={userName}
+        onChange={(e) => setUserName(e.target.value)}
+      />
       <Button onClick={joinRoom}>Submit</Button>
-    </Stack>
+    </FormControl>
   );
 }
