@@ -7,17 +7,18 @@ import {
   ParticipantTile,
   RoomAudioRenderer,
   useTracks,
+  VideoConference,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
-import { fetchEmojis } from "../utils/fetchEmojis";
-import { createClient } from "../utils/supabase/client";
+import { fetchEmojis } from "../../utils/fetchEmojis";
+import { createClient } from "../../utils/supabase/client";
 
-export default function Page() {
+export default function Page({ params }: { params: { creds: string[] } }) {
   // TODO: get user input for room and name
-  const room = "streamer-room";
-  const name = "streamer";
+  const room = "stream-room";
+  const name = "(host) " + params.creds[1];
   const [token, setToken] = useState("");
   const [emojis, setEmojis] = useState<string[]>([]); // State to hold emojis
 

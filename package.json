@@ -1,110 +1,39 @@
 {
  
   "name": "mast",
- 
   "version": "0.1.0",
- 
   "private": true,
- 
   "scripts": {
- 
-   
-  "fastapi-dev": "pip3 install -r requirements.txt && python3 -m uvicorn server.index:app --reload",
- 
-   
-  "next-dev": "next dev",
- 
-   
-  "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
- 
-   
-  "build": "next build",
- 
-   
-  "start": "next start",
- 
-   
-  "lint": "next lint"
- 
+    "fastapi-dev": "pip3 install -r requirements.txt && python3 -m uvicorn server.index:app --reload",
+    "next-dev": "next dev",
+    "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
- 
   "dependencies": {
- 
-   
-  "@chakra-ui/next-js": "^2.2.0",
- 
-   
-  "@chakra-ui/react": "^2.8.2",
- 
-   
-  "@emotion/react": "^11.11.4",
- 
-   
-  "@emotion/styled": "^11.11.5",
- 
-   
-  "@livekit/components-react": "^2.3.3",
- 
-   
-  "@livekit/components-styles": "^1.0.12",
- 
-   
-  "@supabase/ssr": "^0.3.0",
- 
-   
-  "apexcharts": "^3.49.1",
- 
-   
-  "clsx": "^2.1.1",
- 
-   
-  "framer-motion": "^11.2.11",
- 
-   
-  "livekit-server-sdk": "^2.4.0",
- 
-   
-  "next": "14.2.4",
- 
-   
-  "react": "^18",
- 
-   
-  "react-chartjs-2": "^5.2.0",
- 
-   
-  "react-dom": "^18",
- 
-   
-  "tailwind-merge": "^2.3.0"
- 
+    "@chakra-ui/next-js": "^2.2.0",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@livekit/components-react": "^2.3.3",
+    "@livekit/components-styles": "^1.0.12",
+    "@supabase/ssr": "^0.3.0",
+    "framer-motion": "^11.2.11",
+    "livekit-server-sdk": "^2.4.0",
+    "next": "14.2.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "use-react-screenshot": "^4.0.0"
   },
- 
   "devDependencies": {
- 
-   
-  "@types/node": "^20",
- 
-   
-  "@types/react": "^18",
- 
-   
-  "@types/react-dom": "^18",
- 
-   
-  "eslint": "^8",
- 
-   
-  "eslint-config-next": "14.2.4",
- 
-   
-  "postcss": "^8",
- 
-   
-  "tailwindcss": "^3.4.4",
- 
-   
-  "typescript": "^5"
- 
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }
