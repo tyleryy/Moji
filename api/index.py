@@ -125,9 +125,9 @@ async def main():
                     emotions = sorted(data, key=lambda x: x['score'], reverse=True)
                     for i in range(4):    
                         if emotions[i]['name'] in output:
-                            output[emotions[i]['name']] += int(emotions[i]["score"]*10 * (math.e ** (4-i)))
+                            output[emotions[i]['name']] += int(emotions[i]["score"]*5 * (math.e ** (4-i)))
                         else:
-                            output[emotions[i]['name']] = int(emotions[i]["score"]*10* (math.e ** (4-i)))
+                            output[emotions[i]['name']] = int(emotions[i]["score"]*5* (math.e ** (4-i)))
                         
 
     print(output)
