@@ -9,6 +9,8 @@ from hume import HumeStreamClient
 from hume.models.config import FaceConfig
 import requests
 from dotenv import load_dotenv
+import math
+import heapq
 
 load_dotenv(verbose=True)
 
@@ -31,7 +33,7 @@ async def health_check():
     return {"message":"The health check is successful"}
 
 
-@app.get("/api/humeAPi")
+@app.get("/api/humeAPI")
 async def main():
     os.environ["SUPABASE_URL"] = "https://dbijhxjcgykfejomfrwj.supabase.co"
     os.environ["SUPABASE_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaWpoeGpjZ3lrZmVqb21mcndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODIwOTksImV4cCI6MjAzNDY1ODA5OX0.bGxdJhRWCBTHBEj_yRunCt7yLLpgciRKpDsKqnLi3Nc"
@@ -54,16 +56,22 @@ async def main():
     for image in all_images:
         #print(image)
         image_name = image['name']
+        if len(image_name) == 0 or image_name[0] == '.':
+            continue
+        # print(image_name)
 
         image_url = supabase.storage.from_(bucket_name).get_public_url(image_name)
         # all_images_name.append(image_url)
         # image_path = os.path.join(folder_path, image_name)
 
         # # Download the image
+
         response = requests.get(image_url)
-        # print(response.content)
-        # print(type(response))
+        # print('response: ')
+        # # print(response.content)
+        # print(type(response.content))
         all_images_name.append(base64.b64encode(response.content))
+        break
 
         # if response.status_code == 200:
         #     with open(image_path, "wb") as file:
@@ -96,16 +104,70 @@ async def main():
     #         print(output)
     #         response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
     #         return response
-    for image_url in all_images_name:
-        async with client.connect([config]) as socket:
-            result = await socket.send_bytes(image_url)
-            data = result["face"]["predictions"][0]["emotions"]
-            emotions = sorted(data, key=lambda x: x['score'], reverse=True)
-            for i in range(4):    
-                output[emotions[i]['name']] = int(emotions[i]["score"]*10)
+    # print('bytes')
+    # print(all_images_name)
+    # for image_url in all_images_name:
+    
+    if len(all_images_name) == 0:
+        output = {}
+    else:
+        image_url = all_images_name[0]
+        # print('image_url:', image_url)
+        # print('runs once')
+        if not (image_url == '' or image_url == b''):
+            
+            async with client.connect([config]) as socket:
+                # print(image_url)
+                result = await socket.send_bytes(image_url)
+                # print('result:', result)
+                if "predictions" in result["face"] and len(result["face"]["predictions"]) > 0:
+                    data = result["face"]["predictions"][-1]["emotions"]
+                    # print(data)
+                    # emotions = sorted(data, key=lambda x: x['score'], reverse=True)
 
-    print(output)
+                    max_heap = []
+
+                    for dictionary in data:
+                        name = dictionary['name']
+                        score = dictionary['score']
+
+                        if len(max_heap) < 4:
+                            heapq.heappush(max_heap, (score, name))
+                        else:
+                            if (score) > max_heap[0][0]:
+                                heapq.heappushpop(max_heap, (score, name))
+
+                    top_scores = []
+                    while max_heap:
+                        score, name = heapq.heappop(max_heap)
+                        top_scores.append((name, score))
+
+                    # print("Top_scores: ", top_scores)
+                    # print("top emotions: ", emotions[:4])
+                    # top scores is in order of lowest to highest rn
+                    i = 1
+
+                    for name, score in top_scores:
+                        if name in output:
+                            output[name] += math.ceil(score * (math.e ** (4-i)))
+                        else:
+                            output[name] = math.ceil(score * (math.e ** (4-i)))
+                        i += 1
+
+                    # for i in range(4):    
+                    #     if emotions[i]['name'] in output:
+                    #         output[emotions[i]['name']] += math.ceil(emotions[i]["score"] * (math.e ** (4-i)))
+                    #     else:
+                    #         output[emotions[i]['name']] =  math.ceil(emotions[i]["score"]* (math.e ** (4-i)))
+                        
+
+    # print(output)
     response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
+    # print(all_images[0]['name'])
+    if len(all_images) > 0:
+        del_response = supabase.storage.from_('images').remove(all_images[0]['name'])
+        print(del_response)
+
     return response
 # if __name__ == "__main__":
 #     import uvicorn

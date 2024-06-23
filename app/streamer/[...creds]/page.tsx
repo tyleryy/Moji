@@ -31,35 +31,37 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   const supabase = createClient();
 
   const imageToFile = async (imageUrl: string) => {
-    const filename = new Date().toISOString() + '.png';
+    const filename = new Date().toISOString() + ".png";
     const response = await fetch(imageUrl);
     const blob = await response.blob();
-    return new File([blob], filename, { type: 'image/png' });
+    return new File([blob], filename, { type: "image/png" });
   };
 
   const uploadFileToSupabase = async (file: File) => {
-    const { data, error } = await supabase
-      .storage
-      .from('images')
+    const { data, error } = await supabase.storage
+      .from("images")
       .upload(file.name, file, {
-        cacheControl: '3600',
         upsert: false,
       });
 
     if (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
     } else {
-      console.log('File uploaded successfully:', data);
+      console.log("File uploaded successfully:", data);
     }
   };
 
   const captureAndUploadImage = async () => {
     if (ref.current) {
+      // const response = await fetch("/api/humeAPI");
+      // console.log(response);
       const screenshot = await takeScreenShot(ref.current);
       const file = await imageToFile(screenshot);
       console.log("Captured file:", file);
       setFile(file);
       await uploadFileToSupabase(file);
+      // const response = await fetch("/api/humeAPI");
+      // console.log(response);
     } else {
       console.error("The ref is not correctly set.");
     }
@@ -71,7 +73,17 @@ export default function Page({ params }: { params: { creds: string[] } }) {
         captureAndUploadImage();
       }, 10000); // 10 seconds interval
 
-      return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+      const humeIntervalId = setInterval(() => {
+        async function fetchHumeAPI(){
+          const response = await fetch("/api/humeAPI");
+          console.log(response);}
+        fetchHumeAPI();
+      }, 7500); // 7.5 seconds interval
+
+      return () => {
+        clearInterval(intervalId);
+        clearInterval(humeIntervalId);
+      }; // Cleanup the interval on component unmount
     }
   }, []);
 
@@ -95,7 +107,7 @@ export default function Page({ params }: { params: { creds: string[] } }) {
 
   return (
     <>
-    {memoizedEmojiOverlay}
+      {memoizedEmojiOverlay}
       <div ref={ref}>
         <LiveKitRoom
           video={true}
