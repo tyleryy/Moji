@@ -14,8 +14,6 @@ import { useEffect, useState } from "react";
 import { fetchEmojis } from "../utils/fetchEmojis";
 import { createClient } from "../utils/supabase/client";
 
-const supabase = createClient();
-
 export default function Page() {
   // TODO: get user input for room and name
   const room = "streamer-room";
@@ -23,24 +21,9 @@ export default function Page() {
   const [token, setToken] = useState("");
   const [emojis, setEmojis] = useState<string[]>([]); // State to hold emojis
 
-  
+  const supabase = createClient();
 
   useEffect(() => {
-    const channelA = supabase
-      .channel("emoji_updates")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "emotions",
-        },
-        (payload: any) => {
-          setEmojis(payload);
-          console.log(payload)
-        }
-      )
-      .subscribe();
     (async () => {
       try {
         const resp = await fetch(
@@ -52,38 +35,87 @@ export default function Page() {
         console.error(e);
       }
     })();
-  }, []);
-
-  useEffect(() => {
     if (token !== "") {
-      fetchEmojis()
-        .then((fetchedEmojis) => {
-          setEmojis(fetchedEmojis); // Update state with fetched emojis
-        })
-        .catch((error) => {
-          console.error('Error fetching emojis:', error);
-        });
+      (async () => {
+        const emojis = await fetchEmojis();
+        setEmojis(emojis);
+      })();
     }
-  }, [token]);
+    const channelA = supabase
+      .channel("emoji_updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "hume",
+        },
+        (payload: any) => {
+          console.log("Received payload", payload.new.emotionsJSON);
+
+          (async () => {
+            const emojisList: string[] = [];
+
+            for (const [emotion, count] of Object.entries(
+              payload.new.emotionsJSON
+            )) {
+              const countAsNumber = Number(count);
+              console.log(
+                `Fetching emojis for emotion '${emotion}' with count ${countAsNumber}`
+              );
+
+              // Fetch emojis associated with the current emotion from Supabase
+              const { data: emojiData, error: emojiError } = await supabase
+                .from("emotions")
+                .select("emoji")
+                .eq("emotion", emotion)
+                .limit(countAsNumber);
+
+              if (emojiError) {
+                console.error(
+                  `Error fetching emojis for emotion '${emotion}':`,
+                  emojiError
+                );
+                continue;
+              }
+
+              if (emojiData) {
+                // Replicate each emoji based on its count
+                for (const emojiItem of emojiData) {
+                  for (let i = 0; i < countAsNumber; i++) {
+                    emojisList.push(emojiItem.emoji);
+                  }
+                }
+              }
+            }
+            setEmojis(emojisList);
+          })();
+        }
+      )
+      .subscribe();
+
+    // return () => {
+    //   supabase.removeAllChannels();
+    // };
+  }, [token, supabase]);
 
   if (token === "") {
     return <div>Getting token...</div>;
   }
 
   return (
-    <><div>
-      Emojis: {emojis.join(' ')}
-    </div>
-    
-    <LiveKitRoom
-      video={true}
-      audio={true}
-      token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      // Use the default LiveKit theme for nice styles.
-      data-lk-theme="default"
-      style={{ height: "100dvh" }}
-    >
+    <>
+      {emojis ?? <div>Emojis: {emojis.join(" ")}</div>}
+
+      <LiveKitRoom
+        video={true}
+        audio={true}
+        token={token}
+        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+        // Use the default LiveKit theme for nice styles.
+        data-lk-theme="default"
+        style={{ height: "100dvh" }}
+      >
         {/* Your custom component with basic video conferencing functionality. */}
         <MyVideoConference />
         {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
@@ -91,7 +123,8 @@ export default function Page() {
         {/* Controls for the user to start/stop audio, video, and screen
     share tracks and to leave the room. */}
         <ControlBar />
-      </LiveKitRoom></>
+      </LiveKitRoom>
+    </>
   );
 }
 
