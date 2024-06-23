@@ -88,41 +88,30 @@ export default function Page({ params }: { params: { creds: string[] } }) {
     return () => clearInterval(intervalId); // Cleanup the interval on component unmount
   }, []);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (ref.current) {
-        console.log("Taking screenshot...")
-        takeScreenShot(ref.current);
-      } else {
-        console.error("The ref is not correctly set.");
-      }
-    }, 20000); // 10 seconds interval
-
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, [ref, takeScreenShot]);
-
   if (token === "") {
     return <div>Getting token...</div>;
   }
 
   return (
-    <LiveKitRoom
-      video={true}
-      audio={true}
-      token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      // Use the default LiveKit theme for nice styles.
-      data-lk-theme="default"
-      style={{ height: "100dvh" }}
-    >
-      {/* Your custom component with basic video conferencing functionality. */}
-      <MyVideoConference />
-      {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
-      <RoomAudioRenderer />
-      {/* Controls for the user to start/stop audio, video, and screen
-      share tracks and to leave the room. */}
-      <ControlBar />
-    </LiveKitRoom>
+    <div ref={ref}>
+      <LiveKitRoom
+        video={true}
+        audio={true}
+        token={token}
+        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+        // Use the default LiveKit theme for nice styles.
+        data-lk-theme="default"
+        style={{ height: "100dvh" }}
+      >
+        {/* Your custom component with basic video conferencing functionality. */}
+        <MyVideoConference />
+        {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
+        <RoomAudioRenderer />
+        {/* Controls for the user to start/stop audio, video, and screen
+        share tracks and to leave the room. */}
+        <ControlBar />
+      </LiveKitRoom>
+    </div>
   );
 }
 
