@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormErrorMessage,
   FormHelperText,
+  Switch,
 } from "@chakra-ui/react";
 
 import { useState } from "react";
@@ -34,11 +35,16 @@ export default function JoinForm() {
       />
       <FormLabel>User Name</FormLabel>
       <Input
-        placeholder="Enter usxwername"
+        placeholder="Enter username"
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
       />
       <Button onClick={joinRoom}>Submit</Button>
+      <Stack direction={"row"} margin={3}>
+        <FormLabel>Host</FormLabel>
+        <Switch />
+        <FormLabel>Viewer</FormLabel>
+      </Stack>
     </FormControl>
   );
 }
