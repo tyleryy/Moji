@@ -18,7 +18,7 @@ async def health_check():
     return {"message":"The health check is successful"}
 
 
-@app.get("/server/humeAPi")
+@app.get("/api/humeAPi")
 async def main():
     os.environ['SUPABASE_URL'] = 'https://dbijhxjcgykfejomfrwj.supabase.co'
     os.environ['SUPABASE_KEY'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaWpoeGpjZ3lrZmVqb21mcndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODIwOTksImV4cCI6MjAzNDY1ODA5OX0.bGxdJhRWCBTHBEj_yRunCt7yLLpgciRKpDsKqnLi3Nc'
@@ -26,7 +26,7 @@ async def main():
     url: str = os.environ.get("SUPABASE_URL")
     key: str = os.environ.get("SUPABASE_KEY")
 
-    folder_path = "server/images"
+    folder_path = "api/images"
     os.makedirs(folder_path, exist_ok=True)
     
     # Debugging print statements
@@ -95,6 +95,3 @@ async def main():
                 response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
                 return output
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="127.0.0.1", port=3000)
