@@ -109,6 +109,7 @@ async def main():
         output = {}
     else:
         image_url = all_images_name[0]
+        # print('image_url:', image_url)
         # print('runs once')
         if not (image_url == '' or image_url == b''):
             
@@ -117,12 +118,18 @@ async def main():
                 # print(image_url)
                 result = await socket.send_bytes(image_url)
                 # print("BYEYEYEYEEY: ", result)
-                data = result["face"]["predictions"][0]["emotions"]
-                emotions = sorted(data, key=lambda x: x['score'], reverse=True)
-                for i in range(4):    
-                    output[emotions[i]['name']] = int(emotions[i]["score"]*10)
+                print('result:', result)
+                if "predictions" in result["face"] and len(result["face"]["predictions"]) > 0:
+                    data = result["face"]["predictions"][0]["emotions"]
+                    emotions = sorted(data, key=lambda x: x['score'], reverse=True)
+                    for i in range(4):    
+                        if emotions[i]['name'] in output:
+                            output[emotions[i]['name']] += int(emotions[i]["score"]*10)
+                        else:
+                            output[emotions[i]['name']] = int(emotions[i]["score"]*10)
+                        
 
-    # print(output)
+    print(output)
     response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
     # print(all_images[0]['name'])
     del_response = supabase.storage.from_('images').remove(all_images[0]['name'])
