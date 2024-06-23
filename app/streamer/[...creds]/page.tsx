@@ -20,8 +20,12 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   const room = params.creds[0];
   const isHost = params.creds[2] === "host";
   const name = isHost ? "(Host) " + params.creds[1] : params.creds[1];
+  const isEmojiEnabled = params.creds[3] === "emojis";
 
-  const memoizedEmojiOverlay = useMemo(() => <EmojiOverlay />, []);
+  const memoizedEmojiOverlay = useMemo(
+    () => <EmojiOverlay on={isEmojiEnabled} />,
+    []
+  );
 
   const [token, setToken] = useState("");
   const ref = useRef<HTMLDivElement | null>(null);
@@ -68,15 +72,16 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   };
 
   useEffect(() => {
-    if (isHost) {
+    if (isHost && isEmojiEnabled) {
       const intervalId = setInterval(() => {
         captureAndUploadImage();
       }, 10000); // 10 seconds interval
 
       const humeIntervalId = setInterval(() => {
-        async function fetchHumeAPI(){
+        async function fetchHumeAPI() {
           const response = await fetch("/api/humeAPI");
-          console.log(response);}
+          console.log(response);
+        }
         fetchHumeAPI();
       }, 7500); // 7.5 seconds interval
 
