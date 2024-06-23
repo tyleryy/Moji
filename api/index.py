@@ -54,6 +54,9 @@ async def main():
     for image in all_images:
         #print(image)
         image_name = image['name']
+        if len(image_name) == 0 or image_name[0] == '.':
+            continue
+        # print(image_name)
 
         image_url = supabase.storage.from_(bucket_name).get_public_url(image_name)
         # all_images_name.append(image_url)
@@ -100,19 +103,24 @@ async def main():
     #         return response
     # print('bytes')
     # print(all_images_name)
-
-    async with client.connect([config]) as socket:
-        for image_url in all_images_name:
-            if image_url == '' or image_url == b'':
-                continue
-            # print('sanity')
-            # print(image_url)
-            result = await socket.send_bytes(image_url)
-            # print("BYEYEYEYEEY: ", result)
-            data = result["face"]["predictions"][0]["emotions"]
-            emotions = sorted(data, key=lambda x: x['score'], reverse=True)
-            for i in range(4):    
-                output[emotions[i]['name']] = int(emotions[i]["score"]*10)
+    # for image_url in all_images_name:
+    
+    if len(all_images_name) == 0:
+        output = {}
+    else:
+        image_url = all_images_name[0]
+        # print('runs once')
+        if not (image_url == '' or image_url == b''):
+            
+            async with client.connect([config]) as socket:
+                # print('sanity')
+                # print(image_url)
+                result = await socket.send_bytes(image_url)
+                # print("BYEYEYEYEEY: ", result)
+                data = result["face"]["predictions"][0]["emotions"]
+                emotions = sorted(data, key=lambda x: x['score'], reverse=True)
+                for i in range(4):    
+                    output[emotions[i]['name']] = int(emotions[i]["score"]*10)
 
     print(output)
     response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
