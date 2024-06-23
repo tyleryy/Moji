@@ -57,11 +57,6 @@ export default function Page({ params }: { params: { creds: string[] } }) {
       console.log("Captured file:", file);
       setFile(file);
       await uploadFileToSupabase(file);
-      const screenshot = await takeScreenShot(ref.current);
-      const file = await imageToFile(screenshot);
-      console.log("Captured file:", file);
-      setFile(file);
-      await uploadFileToSupabase(file);
     } else {
       console.error("The ref is not correctly set.");
     }
@@ -86,25 +81,6 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   }, []);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      captureAndUploadImage();
-    }, 10000); // 10 seconds interval
-
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, []);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (ref.current) {
-        console.log("Taking screenshot...")
-        takeScreenShot(ref.current);
-      } else {
-        console.error("The ref is not correctly set.");
-      }
-    }, 20000); // 10 seconds interval
-
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, [ref, takeScreenShot]);
     const intervalId = setInterval(() => {
       captureAndUploadImage();
     }, 10000); // 10 seconds interval
