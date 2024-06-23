@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 
 export default function Page({ params }: { params: { creds: string[] } }) {
   // TODO: get user input for room and name
-  console.log(params.creds);
   const room = params.creds[0];
   const name = params.creds[1];
   const [token, setToken] = useState("");
