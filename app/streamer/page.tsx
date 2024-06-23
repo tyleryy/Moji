@@ -11,12 +11,17 @@ import {
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
+import { fetchEmojis } from "../utils/fetchEmojis";
+import { createClient } from "../utils/supabase/client";
 
 export default function Page() {
   // TODO: get user input for room and name
   const room = "streamer-room";
   const name = "streamer";
   const [token, setToken] = useState("");
+  const [emojis, setEmojis] = useState<string[]>([]); // State to hold emojis
+
+  const supabase = createClient();
 
   useEffect(() => {
     (async () => {
@@ -30,30 +35,96 @@ export default function Page() {
         console.error(e);
       }
     })();
-  }, []);
+    if (token !== "") {
+      (async () => {
+        const emojis = await fetchEmojis();
+        setEmojis(emojis);
+      })();
+    }
+    const channelA = supabase
+      .channel("emoji_updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "hume",
+        },
+        (payload: any) => {
+          console.log("Received payload", payload.new.emotionsJSON);
+
+          (async () => {
+            const emojisList: string[] = [];
+
+            for (const [emotion, count] of Object.entries(
+              payload.new.emotionsJSON
+            )) {
+              const countAsNumber = Number(count);
+              console.log(
+                `Fetching emojis for emotion '${emotion}' with count ${countAsNumber}`
+              );
+
+              // Fetch emojis associated with the current emotion from Supabase
+              const { data: emojiData, error: emojiError } = await supabase
+                .from("emotions")
+                .select("emoji")
+                .eq("emotion", emotion)
+                .limit(countAsNumber);
+
+              if (emojiError) {
+                console.error(
+                  `Error fetching emojis for emotion '${emotion}':`,
+                  emojiError
+                );
+                continue;
+              }
+
+              if (emojiData) {
+                // Replicate each emoji based on its count
+                for (const emojiItem of emojiData) {
+                  for (let i = 0; i < countAsNumber; i++) {
+                    emojisList.push(emojiItem.emoji);
+                  }
+                }
+              }
+            }
+            setEmojis(emojisList);
+          })();
+        }
+      )
+      .subscribe();
+
+    // return () => {
+    //   supabase.removeAllChannels();
+    // };
+  }, [token, supabase]);
 
   if (token === "") {
     return <div>Getting token...</div>;
   }
 
   return (
-    <LiveKitRoom
-      video={true}
-      audio={true}
-      token={token}
-      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-      // Use the default LiveKit theme for nice styles.
-      data-lk-theme="default"
-      style={{ height: "100dvh" }}
-    >
-      {/* Your custom component with basic video conferencing functionality. */}
-      <MyVideoConference />
-      {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
-      <RoomAudioRenderer />
-      {/* Controls for the user to start/stop audio, video, and screen
-      share tracks and to leave the room. */}
-      <ControlBar />
-    </LiveKitRoom>
+    <>
+      {emojis ?? <div>Emojis: {emojis.join(" ")}</div>}
+
+      <LiveKitRoom
+        video={true}
+        audio={true}
+        token={token}
+        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+        // Use the default LiveKit theme for nice styles.
+        data-lk-theme="default"
+        style={{ height: "100dvh" }}
+      >
+        {/* Your custom component with basic video conferencing functionality. */}
+        <MyVideoConference />
+        {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
+        <RoomAudioRenderer />
+        {/* Controls for the user to start/stop audio, video, and screen
+    share tracks and to leave the room. */}
+        <ControlBar />
+      </LiveKitRoom>
+    </>
   );
 }
 
