@@ -11,7 +11,7 @@ import {
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { createClient } from "../../utils/supabase/client";
 import { useScreenshot } from "use-react-screenshot";
 import EmojiOverlay from "../../components/emojiOverlay";
@@ -20,6 +20,8 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   const room = params.creds[0];
   const isHost = params.creds[2] === "host";
   const name = isHost ? "(Host) " + params.creds[1] : params.creds[1];
+
+  const memoizedEmojiOverlay = useMemo(() => <EmojiOverlay />, []);
 
   const [token, setToken] = useState("");
   const ref = useRef<HTMLDivElement | null>(null);
@@ -93,8 +95,8 @@ export default function Page({ params }: { params: { creds: string[] } }) {
 
   return (
     <>
+    {memoizedEmojiOverlay}
       <div ref={ref}>
-        <EmojiOverlay />
         <LiveKitRoom
           video={true}
           audio={true}
