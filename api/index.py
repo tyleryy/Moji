@@ -10,7 +10,7 @@ from hume.models.config import FaceConfig
 import requests
 
 
-app = FastAPI(docs_url="/server/docs", openapi_url="/server/openapi.json")
+app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,12 +21,12 @@ app.add_middleware(
 )
 
 
-@app.get("/server/home")
+@app.get("/api/home")
 async def health_check():
     return {"message":"The health check is successful"}
 
 
-@app.get("/server/humeAPi")
+@app.get("/api/humeAPi")
 async def main():
     os.environ['SUPABASE_URL'] = 'https://dbijhxjcgykfejomfrwj.supabase.co'
     os.environ['SUPABASE_KEY'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaWpoeGpjZ3lrZmVqb21mcndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODIwOTksImV4cCI6MjAzNDY1ODA5OX0.bGxdJhRWCBTHBEj_yRunCt7yLLpgciRKpDsKqnLi3Nc'
