@@ -10,6 +10,7 @@ from hume.models.config import FaceConfig
 import requests
 from dotenv import load_dotenv
 import math
+import heapq
 
 load_dotenv(verbose=True)
 
@@ -70,6 +71,7 @@ async def main():
         # # print(response.content)
         # print(type(response.content))
         all_images_name.append(base64.b64encode(response.content))
+        break
 
         # if response.status_code == 200:
         #     with open(image_path, "wb") as file:
@@ -115,26 +117,56 @@ async def main():
         if not (image_url == '' or image_url == b''):
             
             async with client.connect([config]) as socket:
-                # print('sanity')
                 # print(image_url)
                 result = await socket.send_bytes(image_url)
-                # print("BYEYEYEYEEY: ", result)
-                print('result:', result)
+                # print('result:', result)
                 if "predictions" in result["face"] and len(result["face"]["predictions"]) > 0:
                     data = result["face"]["predictions"][-1]["emotions"]
-                    emotions = sorted(data, key=lambda x: x['score'], reverse=True)
-                    for i in range(4):    
-                        if emotions[i]['name'] in output:
-                            output[emotions[i]['name']] += math.ceil(emotions[i]["score"] * (math.e ** (4-i)))
+                    # print(data)
+                    # emotions = sorted(data, key=lambda x: x['score'], reverse=True)
+
+                    max_heap = []
+
+                    for dictionary in data:
+                        name = dictionary['name']
+                        score = dictionary['score']
+
+                        if len(max_heap) < 4:
+                            heapq.heappush(max_heap, (score, name))
                         else:
-                            output[emotions[i]['name']] =  math.ceil(emotions[i]["score"]* (math.e ** (4-i)))
+                            if (score) > max_heap[0][0]:
+                                heapq.heappushpop(max_heap, (score, name))
+
+                    top_scores = []
+                    while max_heap:
+                        score, name = heapq.heappop(max_heap)
+                        top_scores.append((name, score))
+
+                    # print("Top_scores: ", top_scores)
+                    # print("top emotions: ", emotions[:4])
+                    # top scores is in order of lowest to highest rn
+                    i = 1
+
+                    for name, score in top_scores:
+                        if name in output:
+                            output[name] += math.ceil(score * (math.e ** (4-i)))
+                        else:
+                            output[name] = math.ceil(score * (math.e ** (4-i)))
+                        i += 1
+
+                    # for i in range(4):    
+                    #     if emotions[i]['name'] in output:
+                    #         output[emotions[i]['name']] += math.ceil(emotions[i]["score"] * (math.e ** (4-i)))
+                    #     else:
+                    #         output[emotions[i]['name']] =  math.ceil(emotions[i]["score"]* (math.e ** (4-i)))
                         
 
-    print(output)
+    # print(output)
     response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
     # print(all_images[0]['name'])
-    del_response = supabase.storage.from_('images').remove(all_images[0]['name'])
-    # print(del_response)
+    if len(all_images) > 0:
+        del_response = supabase.storage.from_('images').remove(all_images[0]['name'])
+        print(del_response)
 
     return response
 # if __name__ == "__main__":

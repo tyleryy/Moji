@@ -53,13 +53,15 @@ export default function Page({ params }: { params: { creds: string[] } }) {
 
   const captureAndUploadImage = async () => {
     if (ref.current) {
+      // const response = await fetch("/api/humeAPI");
+      // console.log(response);
       const screenshot = await takeScreenShot(ref.current);
       const file = await imageToFile(screenshot);
       console.log("Captured file:", file);
       setFile(file);
       await uploadFileToSupabase(file);
-      const response = await fetch("/api/humeAPI");
-      console.log(response);
+      // const response = await fetch("/api/humeAPI");
+      // console.log(response);
     } else {
       console.error("The ref is not correctly set.");
     }
@@ -69,9 +71,19 @@ export default function Page({ params }: { params: { creds: string[] } }) {
     if (isHost) {
       const intervalId = setInterval(() => {
         captureAndUploadImage();
-      }, 20000); // 10 seconds interval
+      }, 10000); // 10 seconds interval
 
-      return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+      const humeIntervalId = setInterval(() => {
+        async function fetchHumeAPI(){
+          const response = await fetch("/api/humeAPI");
+          console.log(response);}
+        fetchHumeAPI();
+      }, 7500); // 7.5 seconds interval
+
+      return () => {
+        clearInterval(intervalId);
+        clearInterval(humeIntervalId);
+      }; // Cleanup the interval on component unmount
     }
   }, []);
 
