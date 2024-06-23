@@ -122,8 +122,12 @@ async def main():
                 for i in range(4):    
                     output[emotions[i]['name']] = int(emotions[i]["score"]*10)
 
-    print(output)
+    # print(output)
     response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
+    # print(all_images[0]['name'])
+    del_response = supabase.storage.from_('images').remove(all_images[0]['name'])
+    # print(del_response)
+
     return response
 # if __name__ == "__main__":
 #     import uvicorn
