@@ -33,7 +33,8 @@ async def health_check():
 
 @app.get("/api/humeAPi")
 async def main():
-
+    os.environ["SUPABASE_URL"] = "https://dbijhxjcgykfejomfrwj.supabase.co"
+    os.environ["SUPABASE_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaWpoeGpjZ3lrZmVqb21mcndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODIwOTksImV4cCI6MjAzNDY1ODA5OX0.bGxdJhRWCBTHBEj_yRunCt7yLLpgciRKpDsKqnLi3Nc"
     url: str = os.environ.get("SUPABASE_URL")
     key: str = os.environ.get("SUPABASE_KEY")
 
