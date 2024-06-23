@@ -11,14 +11,36 @@ import {
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
 import { useEffect, useState } from "react";
+import { fetchEmojis } from "../utils/fetchEmojis";
+import { createClient } from "../utils/supabase/client";
+
+const supabase = createClient();
 
 export default function Page() {
   // TODO: get user input for room and name
   const room = "streamer-room";
   const name = "streamer";
   const [token, setToken] = useState("");
+  const [emojis, setEmojis] = useState<string[]>([]); // State to hold emojis
+
+  
 
   useEffect(() => {
+    const channelA = supabase
+      .channel("emoji_updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "emotions",
+        },
+        (payload: any) => {
+          setEmojis(payload);
+          console.log(payload)
+        }
+      )
+      .subscribe();
     (async () => {
       try {
         const resp = await fetch(
@@ -32,11 +54,27 @@ export default function Page() {
     })();
   }, []);
 
+  useEffect(() => {
+    if (token !== "") {
+      fetchEmojis()
+        .then((fetchedEmojis) => {
+          setEmojis(fetchedEmojis); // Update state with fetched emojis
+        })
+        .catch((error) => {
+          console.error('Error fetching emojis:', error);
+        });
+    }
+  }, [token]);
+
   if (token === "") {
     return <div>Getting token...</div>;
   }
 
   return (
+    <><div>
+      Emojis: {emojis.join(' ')}
+    </div>
+    
     <LiveKitRoom
       video={true}
       audio={true}
@@ -46,14 +84,14 @@ export default function Page() {
       data-lk-theme="default"
       style={{ height: "100dvh" }}
     >
-      {/* Your custom component with basic video conferencing functionality. */}
-      <MyVideoConference />
-      {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
-      <RoomAudioRenderer />
-      {/* Controls for the user to start/stop audio, video, and screen
-      share tracks and to leave the room. */}
-      <ControlBar />
-    </LiveKitRoom>
+        {/* Your custom component with basic video conferencing functionality. */}
+        <MyVideoConference />
+        {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
+        <RoomAudioRenderer />
+        {/* Controls for the user to start/stop audio, video, and screen
+    share tracks and to leave the room. */}
+        <ControlBar />
+      </LiveKitRoom></>
   );
 }
 
