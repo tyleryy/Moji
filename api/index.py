@@ -12,6 +12,14 @@ import requests
 
 app = FastAPI(docs_url="/server/docs", openapi_url="/server/openapi.json")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/server/home")
 async def health_check():
