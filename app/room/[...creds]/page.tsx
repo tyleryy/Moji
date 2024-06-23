@@ -93,38 +93,6 @@ export default function Page({ params }: { params: { creds: string[] } }) {
     return () => clearInterval(intervalId); // Cleanup the interval on component unmount
   }, []);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (ref.current) {
-        console.log("Taking screenshot...")
-        takeScreenShot(ref.current);
-      } else {
-        console.error("The ref is not correctly set.");
-      }
-    }, 20000); // 10 seconds interval
-
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, [ref, takeScreenShot]);
-    const intervalId = setInterval(() => {
-      captureAndUploadImage();
-    }, 10000); // 10 seconds interval
-
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, []);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (ref.current) {
-        console.log("Taking screenshot...")
-        takeScreenShot(ref.current);
-      } else {
-        console.error("The ref is not correctly set.");
-      }
-    }, 20000); // 10 seconds interval
-
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, [ref, takeScreenShot]);
-
   if (token === "") {
     return <div>Getting token...</div>;
   }
@@ -148,8 +116,6 @@ export default function Page({ params }: { params: { creds: string[] } }) {
         share tracks and to leave the room. */}
         <ControlBar />
       </LiveKitRoom>
-      {/* <Button onClick={getImage}>Take picture</Button> */}
-      {/* <Button onClick={getImage}>Take picture</Button> */}
     </div>
   );
 }
