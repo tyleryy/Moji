@@ -60,9 +60,11 @@ async def main():
         # image_path = os.path.join(folder_path, image_name)
 
         # # Download the image
+
         response = requests.get(image_url)
-        # print(response.content)
-        # print(type(response))
+        # print('response: ')
+        # # print(response.content)
+        # print(type(response.content))
         all_images_name.append(base64.b64encode(response.content))
 
         # if response.status_code == 200:
@@ -96,9 +98,17 @@ async def main():
     #         print(output)
     #         response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
     #         return response
-    for image_url in all_images_name:
-        async with client.connect([config]) as socket:
+    # print('bytes')
+    # print(all_images_name)
+
+    async with client.connect([config]) as socket:
+        for image_url in all_images_name:
+            if image_url == '' or image_url == b'':
+                continue
+            # print('sanity')
+            # print(image_url)
             result = await socket.send_bytes(image_url)
+            # print("BYEYEYEYEEY: ", result)
             data = result["face"]["predictions"][0]["emotions"]
             emotions = sorted(data, key=lambda x: x['score'], reverse=True)
             for i in range(4):    
