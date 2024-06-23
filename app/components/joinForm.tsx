@@ -19,10 +19,11 @@ import { useRouter } from "next/navigation";
 export default function JoinForm() {
   const [roomName, setRoomName] = useState<any>("");
   const [userName, setUserName] = useState<any>("");
+  const [isHost, setIsHost] = useState<boolean>(false);
   const router = useRouter();
   function joinRoom() {
-    console.log("Joining room", roomName, userName);
-    router.push(`/room/${roomName}/${userName}`);
+    console.log("Joining room", roomName, userName, isHost);
+    router.push(`/${isHost ? "streamer" : "room"}/${roomName}/${userName}`);
   }
 
   return (
@@ -41,9 +42,9 @@ export default function JoinForm() {
       />
       <Button onClick={joinRoom}>Submit</Button>
       <Stack direction={"row"} margin={3}>
-        <FormLabel>Host</FormLabel>
-        <Switch />
         <FormLabel>Viewer</FormLabel>
+        <Switch isChecked={isHost} onChange={() => setIsHost(!isHost)} />
+        <FormLabel>Host</FormLabel>
       </Stack>
     </FormControl>
   );
