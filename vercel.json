@@ -1,7 +1,8 @@
 {
     "functions": {
-        "server/**": {
+        "server/index.py": {
             "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
         }
     }
 }
+
