@@ -23,49 +23,44 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   const room = params.creds[0];
   const name = params.creds[1];
   const [token, setToken] = useState("");
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [image, takeScreenShot] = useScreenshot();
-  const [file, setFile] = useState<File | null>(null);
+  // const ref = useRef<HTMLDivElement | null>(null);
+  // const [image, takeScreenShot] = useScreenshot();
+  // const [file, setFile] = useState<File | null>(null);
 
-  const imageToFile = async (imageUrl: string) => {
-    const filename = new Date().toISOString() + '.png';
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    return new File([blob], filename, { type: 'image/png' });
-  };
+  // const imageToFile = async (imageUrl: string) => {
+  //   const filename = new Date().toISOString() + '.png';
+  //   const response = await fetch(imageUrl);
+  //   const blob = await response.blob();
+  //   return new File([blob], filename, { type: 'image/png' });
+  // };
 
-  const uploadFileToSupabase = async (file: File) => {
-    const { data, error } = await supabase
-      .storage
-      .from('images')
-      .upload(file.name, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+  // const uploadFileToSupabase = async (file: File) => {
+  //   const { data, error } = await supabase
+  //     .storage
+  //     .from('images')
+  //     .upload(file.name, file, {
+  //       cacheControl: '3600',
+  //       upsert: false,
+  //     });
 
-    if (error) {
-      console.error('Error uploading file:', error);
-    } else {
-      console.log('File uploaded successfully:', data);
-    }
-  };
+  //   if (error) {
+  //     console.error('Error uploading file:', error);
+  //   } else {
+  //     console.log('File uploaded successfully:', data);
+  //   }
+  // };
 
-  const captureAndUploadImage = async () => {
-    if (ref.current) {
-      const screenshot = await takeScreenShot(ref.current);
-      const file = await imageToFile(screenshot);
-      console.log("Captured file:", file);
-      setFile(file);
-      await uploadFileToSupabase(file);
-      const screenshot = await takeScreenShot(ref.current);
-      const file = await imageToFile(screenshot);
-      console.log("Captured file:", file);
-      setFile(file);
-      await uploadFileToSupabase(file);
-    } else {
-      console.error("The ref is not correctly set.");
-    }
-  };
+  // const captureAndUploadImage = async () => {
+  //   if (ref.current) {
+  //     const screenshot = await takeScreenShot(ref.current);
+  //     const file = await imageToFile(screenshot);
+  //     console.log("Captured file:", file);
+  //     setFile(file);
+  //     await uploadFileToSupabase(file);
+  //   } else {
+  //     console.error("The ref is not correctly set.");
+  //   }
+  // };
 
   useEffect(() => {
     (async () => {
@@ -85,20 +80,20 @@ export default function Page({ params }: { params: { creds: string[] } }) {
     })();
   }, []);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      captureAndUploadImage();
-    }, 10000); // 10 seconds interval
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     captureAndUploadImage();
+  //   }, 10000); // 10 seconds interval
 
-    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, []);
+  //   return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  // }, []);
 
   if (token === "") {
     return <div>Getting token...</div>;
   }
 
   return (
-    <div ref={ref}>
+    // <div ref={ref}>
       <LiveKitRoom
         video={true}
         audio={true}
@@ -116,7 +111,7 @@ export default function Page({ params }: { params: { creds: string[] } }) {
         share tracks and to leave the room. */}
         <ControlBar />
       </LiveKitRoom>
-    </div>
+    // </div>
   );
 }
 
