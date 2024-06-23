@@ -8,7 +8,12 @@ from supabase import create_client, Client
 from hume import HumeStreamClient
 from hume.models.config import FaceConfig
 import requests
+from dotenv import load_dotenv
 
+load_dotenv(verbose=True)
+
+url = os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+key = os.getenv("NEXT_PUBLIC_SUPABASE_ANON_KEY")
 
 app = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -28,8 +33,6 @@ async def health_check():
 
 @app.get("/api/humeAPi")
 async def main():
-    os.environ['SUPABASE_URL'] = 'https://dbijhxjcgykfejomfrwj.supabase.co'
-    os.environ['SUPABASE_KEY'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaWpoeGpjZ3lrZmVqb21mcndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODIwOTksImV4cCI6MjAzNDY1ODA5OX0.bGxdJhRWCBTHBEj_yRunCt7yLLpgciRKpDsKqnLi3Nc'
 
     url: str = os.environ.get("SUPABASE_URL")
     key: str = os.environ.get("SUPABASE_KEY")
