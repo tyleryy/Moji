@@ -7,6 +7,7 @@ import {
   ParticipantTile,
   RoomAudioRenderer,
   useTracks,
+  Toast,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
@@ -135,6 +136,7 @@ function MyVideoConference() {
       {/* The GridLayout accepts zero or one child. The child is used
       as a template to render all passed in tracks. */}
       <ParticipantTile />
+      <Toast>Connecting...</Toast>
     </GridLayout>
   );
 }
