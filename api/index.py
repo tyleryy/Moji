@@ -38,8 +38,8 @@ async def main():
     url: str = os.environ.get("SUPABASE_URL")
     key: str = os.environ.get("SUPABASE_KEY")
 
-    folder_path = "server/images"
-    os.makedirs(folder_path, exist_ok=True)
+    # folder_path = "server/images"
+    # os.makedirs(folder_path, exist_ok=True)
     
     # Debugging print statements
     
