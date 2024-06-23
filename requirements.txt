@@ -4,5 +4,3 @@ supabase
 hume
 requests
 python-dotenv
-ffmpeg
-ffmpeg-python
