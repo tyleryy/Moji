@@ -11,18 +11,68 @@ import {
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { Track } from "livekit-client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchEmojis } from "../../utils/fetchEmojis";
 import { createClient } from "../../utils/supabase/client";
+import { useScreenshot } from "use-react-screenshot";
 
 export default function Page({ params }: { params: { creds: string[] } }) {
-  // TODO: get user input for room and name
-  const room = "stream-room";
-  const name = "(host) " + params.creds[1];
+  const room = params.creds[0];
+  const isHost = params.creds[2] === "host";
+  const name = isHost ? "(Host) " + params.creds[1] : params.creds[1];
+
   const [token, setToken] = useState("");
   const [emojis, setEmojis] = useState<string[]>([]); // State to hold emojis
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [image, takeScreenShot] = useScreenshot();
+  const [file, setFile] = useState<File | null>(null);
 
   const supabase = createClient();
+
+  const imageToFile = async (imageUrl: string) => {
+    const filename = new Date().toISOString() + '.png';
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: 'image/png' });
+  };
+
+  const uploadFileToSupabase = async (file: File) => {
+    const { data, error } = await supabase
+      .storage
+      .from('images')
+      .upload(file.name, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Error uploading file:', error);
+    } else {
+      console.log('File uploaded successfully:', data);
+    }
+  };
+
+  const captureAndUploadImage = async () => {
+    if (ref.current) {
+      const screenshot = await takeScreenShot(ref.current);
+      const file = await imageToFile(screenshot);
+      console.log("Captured file:", file);
+      setFile(file);
+      await uploadFileToSupabase(file);
+    } else {
+      console.error("The ref is not correctly set.");
+    }
+  };
+
+  useEffect(() => {
+    if (isHost) {
+      const intervalId = setInterval(() => {
+        captureAndUploadImage();
+      }, 10000); // 10 seconds interval
+
+      return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -107,24 +157,25 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   return (
     <>
       {emojis ?? <div>Emojis: {emojis.join(" ")}</div>}
-
-      <LiveKitRoom
-        video={true}
-        audio={true}
-        token={token}
-        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-        // Use the default LiveKit theme for nice styles.
-        data-lk-theme="default"
-        style={{ height: "100dvh" }}
-      >
-        {/* Your custom component with basic video conferencing functionality. */}
-        <MyVideoConference />
-        {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
-        <RoomAudioRenderer />
-        {/* Controls for the user to start/stop audio, video, and screen
-    share tracks and to leave the room. */}
-        <ControlBar />
-      </LiveKitRoom>
+      <div ref={ref}>
+        <LiveKitRoom
+          video={true}
+          audio={true}
+          token={token}
+          serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+          // Use the default LiveKit theme for nice styles.
+          data-lk-theme="default"
+          style={{ height: "100dvh" }}
+        >
+          {/* Your custom component with basic video conferencing functionality. */}
+          <MyVideoConference />
+          {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
+          <RoomAudioRenderer />
+          {/* Controls for the user to start/stop audio, video, and screen
+      share tracks and to leave the room. */}
+          <ControlBar />
+        </LiveKitRoom>
+      </div>
     </>
   );
 }
