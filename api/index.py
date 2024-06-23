@@ -121,7 +121,7 @@ async def main():
                 # print("BYEYEYEYEEY: ", result)
                 print('result:', result)
                 if "predictions" in result["face"] and len(result["face"]["predictions"]) > 0:
-                    data = result["face"]["predictions"][0]["emotions"]
+                    data = result["face"]["predictions"][-1]["emotions"]
                     emotions = sorted(data, key=lambda x: x['score'], reverse=True)
                     for i in range(4):    
                         if emotions[i]['name'] in output:
