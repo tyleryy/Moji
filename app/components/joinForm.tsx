@@ -40,19 +40,21 @@ export default function JoinForm() {
         value={roomName}
         onChange={(e) => setRoomName(e.target.value)}
       />
-      <FormLabel>User Name</FormLabel>
+      <FormLabel marginTop={2}>User Name</FormLabel>
       <Input
         placeholder="Enter username"
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
       />
-      <Button onClick={joinRoom}>Submit</Button>
-      <Stack direction={"row"} margin={3}>
+      <Button onClick={joinRoom} marginTop={3}>
+        Submit
+      </Button>
+      <Stack direction={"row"} marginTop={3}>
         <FormLabel>Viewer</FormLabel>
         <Switch isChecked={isHost} onChange={() => setIsHost(!isHost)} />
         <FormLabel>Host</FormLabel>
       </Stack>
-      <Stack direction={"row"} margin={3}>
+      <Stack direction={"row"} marginTop={3}>
         <FormLabel>Emojis Off</FormLabel>
         <Switch isChecked={toggle} onChange={() => setToggle(!toggle)} />
         <FormLabel>Emojis On</FormLabel>
