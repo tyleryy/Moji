@@ -90,6 +90,3 @@ async def main():
             print(output)
             response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
             return response
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="127.0.0.1", port=3000)
