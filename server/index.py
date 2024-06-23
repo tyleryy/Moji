@@ -65,7 +65,6 @@ async def main():
 
 
     config = FaceConfig(identify_faces=True)
-    
 
     
     for root, dirs, files in os.walk(folder_path):
@@ -76,24 +75,12 @@ async def main():
             async with client.connect([config]) as socket:
                 result = await socket.send_file(image_path)
                 data = result["face"]["predictions"][0]["emotions"]
-
-
-               
-                emotions = sorted(data, key=lambda x: x['score'], reverse=True)
-                for i in range(4):    
-                    output[emotions[i]['name']] = int(emotions[i]["score"]*10)
-                
-
-
-
-                #max_score_dict = sort(data, key=lambda x: x['score'])
-                #emotion = max_score_dict['name']
-
-                #output[emotion] = 1 + output.get(emotion, 0)
+                max_score_dict = max(data, key=lambda x: x['score'])
+                emotion = max_score_dict['name']
+                output[emotion] = 1 + output.get(emotion, 0)
     
-                print(output)
-                response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
-                return output
+    print(output)
+    return output
 
 # if __name__ == "__main__":
 #     import uvicorn
