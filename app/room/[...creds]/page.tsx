@@ -95,26 +95,23 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   }
 
   return (
-    <div ref={ref}>
-      <LiveKitRoom
-        video={true}
-        audio={true}
-        token={token}
-        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-        // Use the default LiveKit theme for nice styles.
-        data-lk-theme="default"
-        style={{ height: "100dvh" }}
-      >
-        {/* Your custom component with basic video conferencing functionality. */}
-        <MyVideoConference />
-        {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
-        <RoomAudioRenderer />
-        {/* Controls for the user to start/stop audio, video, and screen
-        share tracks and to leave the room. */}
-        <ControlBar />
-      </LiveKitRoom>
-      <Button onClick={getImage}>Take picture</Button>
-    </div>
+    <LiveKitRoom
+      video={true}
+      audio={true}
+      token={token}
+      serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+      // Use the default LiveKit theme for nice styles.
+      data-lk-theme="default"
+      style={{ height: "100dvh" }}
+    >
+      {/* Your custom component with basic video conferencing functionality. */}
+      <MyVideoConference />
+      {/* The RoomAudioRenderer takes care of room-wide audio for you. */}
+      <RoomAudioRenderer />
+      {/* Controls for the user to start/stop audio, video, and screen
+      share tracks and to leave the room. */}
+      <ControlBar />
+    </LiveKitRoom>
   );
 }
 
@@ -136,7 +133,6 @@ function MyVideoConference() {
       {/* The GridLayout accepts zero or one child. The child is used
       as a template to render all passed in tracks. */}
       <ParticipantTile />
-      <Toast>Connecting...</Toast>
     </GridLayout>
   );
 }
