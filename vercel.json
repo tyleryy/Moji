@@ -1,8 +1,0 @@
-{
-    "functions": {
-        "server/**": {
-            "excludeFiles": "{images,.next,*.cache,node_modules,public,app}/**"
-        }
-    }
-}
-
