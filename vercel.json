@@ -1,22 +1,8 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "server/**/*.py",
-        "use": "@vercel/python"
-      }
-    ],
     "functions": {
-      "server/**/*.py": {
-        "memory": 128,
-        "maxDuration": 10
-      }
-    },
-    "routes": [
-      {
-        "src": "/server/(.*)",
-        "dest": "/server/$1.py"
-      }
-    ]
-  }
-  
+        "server/*.py": {
+            "excludeFiles": "{.next,*.cache,node_modules,public,app}/**"
+        }
+    }
+}
+
