@@ -23,7 +23,7 @@ export default function JoinForm() {
   const router = useRouter();
   function joinRoom() {
     console.log("Joining room", roomName, userName, isHost);
-    router.push(`/${isHost ? "streamer" : "room"}/${roomName}/${userName}`);
+    router.push(`/streamer/${roomName}/${userName}/${isHost? "host" : "viewer"}`);
   }
 
   return (

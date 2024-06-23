@@ -29,6 +29,7 @@ yarn-error.log*
 .env*.local
 
 **/.vscode
+**/__pycache__
 
 # vercel
 .vercel

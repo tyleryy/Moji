@@ -37,9 +37,6 @@ async def main():
     os.environ["SUPABASE_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiaWpoeGpjZ3lrZmVqb21mcndqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODIwOTksImV4cCI6MjAzNDY1ODA5OX0.bGxdJhRWCBTHBEj_yRunCt7yLLpgciRKpDsKqnLi3Nc"
     url: str = os.environ.get("SUPABASE_URL")
     key: str = os.environ.get("SUPABASE_KEY")
-
-    # folder_path = "server/images"
-    # os.makedirs(folder_path, exist_ok=True)
     
     # Debugging print statements
     
@@ -82,8 +79,8 @@ async def main():
 
 
     config = FaceConfig(identify_faces=True)
-
     
+
     # for root, dirs, files in os.walk(folder_path):
     #     for file in files:
     #         # Get the full path of the image
@@ -113,3 +110,4 @@ async def main():
 # if __name__ == "__main__":
 #     import uvicorn
 #     uvicorn.run(app, host="127.0.0.1", port=3000)
+
