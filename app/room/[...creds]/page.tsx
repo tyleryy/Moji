@@ -19,7 +19,6 @@ import { createClient } from "@/app/utils/supabase/client";
 const supabase = createClient();
 
 export default function Page({ params }: { params: { creds: string[] } }) {
-  // TODO: get user input for room and name
   const room = params.creds[0];
   const name = params.creds[1];
   const [token, setToken] = useState("");
@@ -50,11 +49,15 @@ export default function Page({ params }: { params: { creds: string[] } }) {
     }
   };
 
-  const getImage = () => {
+  const captureAndUploadImage = async () => {
     if (ref.current) {
-      takeScreenShot(ref.current);
+      const screenshot = await takeScreenShot(ref.current);
+      const file = await imageToFile(screenshot);
+      console.log("Captured file:", file);
+      setFile(file);
+      await uploadFileToSupabase(file);
     } else {
-      console.error('The ref is not correctly set.');
+      console.error("The ref is not correctly set.");
     }
   };
 
@@ -77,17 +80,25 @@ export default function Page({ params }: { params: { creds: string[] } }) {
   }, []);
 
   useEffect(() => {
-    if (image) {
-      imageToFile(image)
-        .then(file => {
-          console.log('Captured file:', file);
-          setFile(file);
-          return file;
-        })
-        .then(uploadFileToSupabase)
-        .catch(err => console.error('Error converting image to file:', err));
-    }
-  }, [image]);
+    const intervalId = setInterval(() => {
+      captureAndUploadImage();
+    }, 10000); // 10 seconds interval
+
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (ref.current) {
+        console.log("Taking screenshot...")
+        takeScreenShot(ref.current);
+      } else {
+        console.error("The ref is not correctly set.");
+      }
+    }, 20000); // 10 seconds interval
+
+    return () => clearInterval(intervalId); // Cleanup the interval on component unmount
+  }, [ref, takeScreenShot]);
 
   if (token === "") {
     return <div>Getting token...</div>;
@@ -112,7 +123,7 @@ export default function Page({ params }: { params: { creds: string[] } }) {
         share tracks and to leave the room. */}
         <ControlBar />
       </LiveKitRoom>
-      <Button onClick={getImage}>Take picture</Button>
+      {/* <Button onClick={getImage}>Take picture</Button> */}
     </div>
   );
 }
