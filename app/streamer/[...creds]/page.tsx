@@ -60,6 +60,8 @@ export default function Page({ params }: { params: { creds: string[] } }) {
       console.log("Captured file:", file);
       setFile(file);
       await uploadFileToSupabase(file);
+      const response = await fetch("/api/humeAPI");
+      console.log(response);
     } else {
       console.error("The ref is not correctly set.");
     }
