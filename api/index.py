@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
+import base64
 import os
 import asyncio
 from supabase import create_client, Client
@@ -52,23 +52,28 @@ async def main():
 
     all_images = supabase.storage.from_(bucket_name).list()
 
-
+    all_images_name = []
     #Sends images from subasbase to local folder
     for image in all_images:
         #print(image)
         image_name = image['name']
 
         image_url = supabase.storage.from_(bucket_name).get_public_url(image_name)
-        image_path = os.path.join(folder_path, image_name)
+        # all_images_name.append(image_url)
+        # image_path = os.path.join(folder_path, image_name)
 
-        # Download the image
+        # # Download the image
         response = requests.get(image_url)
-        if response.status_code == 200:
-            with open(image_path, "wb") as file:
-                file.write(response.content)
-            result = f"Image saved to {image_path}"
-        else:
-            result = "Failed to download the image"
+        # print(response.content)
+        # print(type(response))
+        all_images_name.append(base64.b64encode(response.content))
+
+        # if response.status_code == 200:
+        #     with open(image_path, "wb") as file:
+        #         file.write(response.content)
+        #     result = f"Image saved to {image_path}"
+        # else:
+        #     result = "Failed to download the image"
         #print(result)
     
 
@@ -79,21 +84,32 @@ async def main():
     config = FaceConfig(identify_faces=True)
 
     
-    for root, dirs, files in os.walk(folder_path):
-        for file in files:
-            # Get the full path of the image
-            image_path = os.path.join(root, file)
+    # for root, dirs, files in os.walk(folder_path):
+    #     for file in files:
+    #         # Get the full path of the image
+    #         image_path = os.path.join(root, file)
 
-            async with client.connect([config]) as socket:
-                result = await socket.send_file(image_path)
-                data = result["face"]["predictions"][0]["emotions"]
-                emotions = sorted(data, key=lambda x: x['score'], reverse=True)
-                for i in range(4):    
-                    output[emotions[i]['name']] = int(emotions[i]["score"]*10)
+    #         async with client.connect([config]) as socket:
+    #             result = await socket.send_file(image_path)
+    #             data = result["face"]["predictions"][0]["emotions"]
+    #             emotions = sorted(data, key=lambda x: x['score'], reverse=True)
+    #             for i in range(4):    
+    #                 output[emotions[i]['name']] = int(emotions[i]["score"]*10)
 
-            print(output)
-            response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
-            return response
+    #         print(output)
+    #         response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
+    #         return response
+    for image_url in all_images_name:
+        async with client.connect([config]) as socket:
+            result = await socket.send_bytes(image_url)
+            data = result["face"]["predictions"][0]["emotions"]
+            emotions = sorted(data, key=lambda x: x['score'], reverse=True)
+            for i in range(4):    
+                output[emotions[i]['name']] = int(emotions[i]["score"]*10)
+
+    print(output)
+    response = supabase.table('hume').upsert({"id":1, "emotionsJSON":output}).execute()
+    return response
 # if __name__ == "__main__":
 #     import uvicorn
 #     uvicorn.run(app, host="127.0.0.1", port=3000)
